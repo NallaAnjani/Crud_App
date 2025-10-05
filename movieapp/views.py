@@ -3,6 +3,10 @@ from django.http import JsonResponse
 from .models import Movie
 
 # LIST all movies
+
+def splash(request):
+    return render(request, 'movieapp/splash.html')
+
 def index(request):
     movies = Movie.objects.all()
     return render(request, 'movieapp/index.html', {'movies': movies})
