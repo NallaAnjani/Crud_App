@@ -12,6 +12,7 @@ def index(request):
     return render(request, 'movieapp/index.html', {'movies': movies})
 
 # ADD movie via form
+# ADD movie via form
 def add_movie(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -19,8 +20,8 @@ def add_movie(request):
         status = request.POST.get('status')
         release_year = request.POST.get('release_year')
         rating = request.POST.get('rating')
+        image_url = request.POST.get('image_url')  # NEW
 
-        # Basic validation
         if not title or not genre or not status or not release_year or not rating:
             return JsonResponse({'error': 'All fields are required'}, status=400)
 
@@ -29,9 +30,12 @@ def add_movie(request):
             genre=genre,
             status=status,
             release_year=int(release_year),
-            rating=float(rating)
+            rating=float(rating),
+            image_url=image_url
         )
-        return JsonResponse({'success': 'Movie added successfully!'})
+
+        count = Movie.objects.count()  # Get updated count
+        return JsonResponse({'success': 'Movie added successfully!', 'count': count})
 
     return render(request, 'movieapp/add.html')
 
@@ -45,6 +49,7 @@ def edit_movie(request, id):
         status = request.POST.get('status')
         release_year = request.POST.get('release_year')
         rating = request.POST.get('rating')
+        image_url = request.POST.get('image_url')  # <-- new field
 
         if not title or not genre or not status or not release_year or not rating:
             return JsonResponse({'error': 'All fields are required'}, status=400)
@@ -54,6 +59,7 @@ def edit_movie(request, id):
         movie.status = status
         movie.release_year = int(release_year)
         movie.rating = float(rating)
+        movie.image_url = image_url  # <-- save the new field
         movie.save()
 
         return JsonResponse({'success': 'Movie updated successfully!'})
@@ -61,12 +67,15 @@ def edit_movie(request, id):
     return render(request, 'movieapp/edit.html', {'movie': movie})
 
 # DELETE movie
+
 def delete_movie(request, id):
     movie = get_object_or_404(Movie, id=id)
     if request.method == 'POST':
         movie.delete()
-        return JsonResponse({'success': 'Movie deleted successfully!'})
+        count = Movie.objects.count()
+        return JsonResponse({'success': 'Movie deleted successfully!', 'count': count})
     return render(request, 'movieapp/delete.html', {'movie': movie})
+
 
 
 # from django.shortcuts import render, redirect, get_object_or_404
